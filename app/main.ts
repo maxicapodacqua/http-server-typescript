@@ -1,10 +1,11 @@
 import * as net from "net";
 import { root } from "./routes/root";
+import { echo } from "./routes/echo";
 
 type Route = {
-    matcher: string|((inputTarget:string) => boolean),
-    method: string,
-    func: ((socket: net.Socket, headers:string) => void),
+  matcher: string | ((inputTarget: string) => boolean);
+  method: string;
+  func: (socket: net.Socket, target: string, headers: string) => void;
 };
 const ROUTES: Route[] = [
   {
@@ -18,21 +19,21 @@ const ROUTES: Route[] = [
     func: root,
   },
   {
-    matcher: (inputTarget :string) => {
-        return inputTarget.startsWith('/echo/');
+    matcher: (inputTarget: string) => {
+      return inputTarget.startsWith("/echo/");
     },
     method: "GET",
-    func: root,
+    func: echo,
   },
 ];
 
 function getRoute(inputMethod: string, inputTarget: string) {
   return ROUTES.find(({ matcher, method }) => {
     let matched = false;
-    if (typeof matcher === 'string') {
-        matched = inputTarget === matcher;
-    } else if (typeof matcher === 'function') {
-        matched = matcher(inputTarget);
+    if (typeof matcher === "string") {
+      matched = inputTarget === matcher;
+    } else if (typeof matcher === "function") {
+      matched = matcher(inputTarget);
     }
     return inputMethod === method && matched;
   });
@@ -49,7 +50,7 @@ function readRequest(socket: net.Socket) {
 
     const route = getRoute(method, target);
     if (route) {
-      route.func(socket, header);
+      route.func(socket, target, header);
     } else {
       socket.write(`HTTP/1.1 404 Not Found\r\n\r\n`);
     }
