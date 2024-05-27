@@ -8,7 +8,7 @@ import { postFiles } from "./routes/post-files";
 type Route = {
   matcher: string | ((inputTarget: string) => boolean);
   method: string;
-  func: (socket: net.Socket, target: string, headers: string[]) => void;
+  func: (socket: net.Socket, target: string, headers: string[], data:string|undefined) => void;
 };
 const ROUTES: Route[] = [
   {
@@ -73,7 +73,7 @@ function readRequest(socket: net.Socket) {
     const route = getRoute(method, target);
     if (route) {
       console.log(`Executing route: ${route.matcher}`);
-      route.func(socket, target, headers);
+      route.func(socket, target, headers, data);
     } else {
       socket.write(`HTTP/1.1 404 Not Found\r\n\r\n`);
     }
