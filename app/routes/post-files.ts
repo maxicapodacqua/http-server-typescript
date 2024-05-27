@@ -10,7 +10,7 @@ export function postFiles(socket: net.Socket, target: string, headers: string[],
     let responseBody = "";
     fs.writeFileSync(directory + filename, data);
     socket.write(
-      `HTTP/1.1 201 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${responseBody.length}\r\n\r\n${responseBody}`
+      `HTTP/1.1 201 Created\r\nContent-Type: application/octet-stream\r\nContent-Length: ${responseBody.length}\r\n\r\n${responseBody}`
     );
   } catch (e) {
     socket.write(`HTTP/1.1 404 Not Found\r\n\r\n`);
