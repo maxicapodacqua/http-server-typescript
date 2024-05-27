@@ -5,7 +5,7 @@ export function userAgent(socket: net.Socket, target: string, headers: string[])
     const headerPrefix = 'user-agent:';
     const uaHeader = headers.find((h) => h.toLowerCase().startsWith(headerPrefix));
     if (uaHeader) {
-        responseBody = uaHeader.slice(headerPrefix.length);
+        responseBody = uaHeader.slice(headerPrefix.length).trim();
     }
 
     console.log(responseBody);
