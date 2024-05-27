@@ -3,6 +3,7 @@ import { root } from "./routes/root";
 import { echo } from "./routes/echo";
 import { userAgent } from "./routes/user-agent";
 import { files } from "./routes/files";
+import { postFiles } from "./routes/post-files";
 
 type Route = {
   matcher: string | ((inputTarget: string) => boolean);
@@ -28,17 +29,24 @@ const ROUTES: Route[] = [
     func: echo,
   },
   {
-    matcher: '/user-agent',
-    method: 'GET',
+    matcher: "/user-agent",
+    method: "GET",
     func: userAgent,
   },
   {
     matcher: (inputTarget: string) => {
       return inputTarget.startsWith("/files/");
     },
-    method: 'GET',
+    method: "GET",
     func: files,
-  }
+  },
+  {
+    matcher: (inputTarget: string) => {
+      return inputTarget.startsWith("/files/");
+    },
+    method: "POST",
+    func: postFiles,
+  },
 ];
 
 function getRoute(inputMethod: string, inputTarget: string) {
@@ -54,10 +62,11 @@ function getRoute(inputMethod: string, inputTarget: string) {
 }
 
 function readRequest(socket: net.Socket) {
-  socket.on("data", (data) => {
-    const input = data.toString();
+  socket.on("data", (buffer) => {
+    const input = buffer.toString();
 
-    const [requestLine, ...headers] = input.split("\r\n");
+    const [infoBlock, data] = input.split("\r\n\r\n");
+    const [requestLine, ...headers] = infoBlock.split("\r\n");
 
     const [method, target, protocol] = requestLine.split(" ");
 
@@ -72,7 +81,6 @@ function readRequest(socket: net.Socket) {
     socket.end();
   });
 }
-
 
 const server = net.createServer((socket) => {
   readRequest(socket);
