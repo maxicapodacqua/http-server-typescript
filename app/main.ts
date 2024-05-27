@@ -2,6 +2,7 @@ import * as net from "net";
 import { root } from "./routes/root";
 import { echo } from "./routes/echo";
 import { userAgent } from "./routes/user-agent";
+import { files } from "./routes/files";
 
 type Route = {
   matcher: string | ((inputTarget: string) => boolean);
@@ -30,6 +31,13 @@ const ROUTES: Route[] = [
     matcher: '/user-agent',
     method: 'GET',
     func: userAgent,
+  },
+  {
+    matcher: (inputTarget: string) => {
+      return inputTarget.startsWith("/files/");
+    },
+    method: 'GET',
+    func: files,
   }
 ];
 
@@ -49,15 +57,13 @@ function readRequest(socket: net.Socket) {
   socket.on("data", (data) => {
     const input = data.toString();
 
-    console.log(input);
-
     const [requestLine, ...headers] = input.split("\r\n");
 
     const [method, target, protocol] = requestLine.split(" ");
-    console.log('HEADER', headers);
 
     const route = getRoute(method, target);
     if (route) {
+      console.log(`Executing route: ${route.matcher}`);
       route.func(socket, target, headers);
     } else {
       socket.write(`HTTP/1.1 404 Not Found\r\n\r\n`);
@@ -66,6 +72,7 @@ function readRequest(socket: net.Socket) {
     socket.end();
   });
 }
+
 
 const server = net.createServer((socket) => {
   readRequest(socket);
