@@ -12,7 +12,7 @@ export function files(socket: net.Socket, target: string, headers: string[]) {
 
     responseBody = file.toString();
     socket.write(
-      `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${responseBody.length}\r\n\r\n${responseBody}`
+      `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${responseBody.length}\r\n\r\n${responseBody}`
     );
   } catch (e) {
     // TODO: double check exception to make sure the error is that the file doesn't exist
