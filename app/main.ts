@@ -1,11 +1,12 @@
 import * as net from "net";
 import { root } from "./routes/root";
 import { echo } from "./routes/echo";
+import { userAgent } from "./routes/user-agent";
 
 type Route = {
   matcher: string | ((inputTarget: string) => boolean);
   method: string;
-  func: (socket: net.Socket, target: string, headers: string) => void;
+  func: (socket: net.Socket, target: string, headers: string[]) => void;
 };
 const ROUTES: Route[] = [
   {
@@ -25,6 +26,11 @@ const ROUTES: Route[] = [
     method: "GET",
     func: echo,
   },
+  {
+    matcher: '/user-agent',
+    method: 'GET',
+    func: userAgent,
+  }
 ];
 
 function getRoute(inputMethod: string, inputTarget: string) {
@@ -42,15 +48,17 @@ function getRoute(inputMethod: string, inputTarget: string) {
 function readRequest(socket: net.Socket) {
   socket.on("data", (data) => {
     const input = data.toString();
-    console.log(`request: ${input}`);
 
-    const [requestLine, header] = input.split("\r\n");
+    console.log(input);
+
+    const [requestLine, ...headers] = input.split("\r\n");
 
     const [method, target, protocol] = requestLine.split(" ");
+    console.log('HEADER', headers);
 
     const route = getRoute(method, target);
     if (route) {
-      route.func(socket, target, header);
+      route.func(socket, target, headers);
     } else {
       socket.write(`HTTP/1.1 404 Not Found\r\n\r\n`);
     }
