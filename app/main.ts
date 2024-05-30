@@ -8,7 +8,12 @@ import { postFiles } from "./routes/post-files";
 type Route = {
   matcher: string | ((inputTarget: string) => boolean);
   method: string;
-  func: (socket: net.Socket, target: string, headers: string[], data:string|undefined) => void;
+  func: (
+    socket: net.Socket,
+    target: string,
+    headers: string[],
+    data: string | undefined
+  ) => void;
 };
 const ROUTES: Route[] = [
   {
