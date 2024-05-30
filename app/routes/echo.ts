@@ -3,7 +3,7 @@ import * as zlib from "zlib";
 
 const validEncodings = ["gzip"];
 export function echo(socket: net.Socket, target: string, headers: string[]) {
-  let responseBody = target.slice("/echo/".length);
+  let responseBody = Buffer.from(target.slice("/echo/".length));
 
   let contentEncodingHeader = "";
   for (const headerLine of headers) {
