@@ -1,8 +1,9 @@
 import * as net from "net";
+import * as zlib from "zlib";
 
 const validEncodings = ["gzip"];
 export function echo(socket: net.Socket, target: string, headers: string[]) {
-  const responseBody = target.slice("/echo/".length);
+  let responseBody = target.slice("/echo/".length);
 
   let contentEncodingHeader = "";
   for (const headerLine of headers) {
@@ -12,6 +13,7 @@ export function echo(socket: net.Socket, target: string, headers: string[]) {
       .find((v) => validEncodings.includes(v.trim()));
     if (name.toLowerCase() === "accept-encoding" && value !== undefined) {
       contentEncodingHeader = `Content-Encoding:  ${value.trim()}\r\n`;
+      responseBody = zlib.gzipSync(responseBody).toString('hex');
     }
   }
 
