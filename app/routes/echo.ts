@@ -13,11 +13,12 @@ export function echo(socket: net.Socket, target: string, headers: string[]) {
       .find((v) => validEncodings.includes(v.trim()));
     if (name.toLowerCase() === "accept-encoding" && value !== undefined) {
       contentEncodingHeader = `Content-Encoding: ${value.trim()}\r\n`;
-      responseBody = zlib.gzipSync(responseBody).toString('hex');
+      responseBody = zlib.gzipSync(responseBody);
     }
   }
 
   socket.write(
-    `HTTP/1.1 200 OK\r\n${contentEncodingHeader}Content-Type: text/plain\r\nContent-Length: ${responseBody.length}\r\n\r\n${responseBody}`
+    `HTTP/1.1 200 OK\r\n${contentEncodingHeader}Content-Type: text/plain\r\nContent-Length: ${responseBody.length}\r\n\r\n`
   );
+  socket.write(responseBody);
 }
