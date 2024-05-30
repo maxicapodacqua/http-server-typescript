@@ -12,7 +12,7 @@ export function echo(socket: net.Socket, target: string, headers: string[]) {
       .split(",")
       .find((v) => validEncodings.includes(v.trim()));
     if (name.toLowerCase() === "accept-encoding" && value !== undefined) {
-      contentEncodingHeader = `Content-Encoding:  ${value.trim()}\r\n`;
+      contentEncodingHeader = `Content-Encoding: ${value.trim()}\r\n`;
       responseBody = zlib.gzipSync(responseBody).toString('hex');
     }
   }
